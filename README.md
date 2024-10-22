@@ -1,99 +1,194 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Real-time Communication Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A Nest.js-based backend application that provides real-time communication capabilities using WebSocket and PeerJS integration. This system supports room-based communication, user management, and peer-to-peer connections for video/audio streaming.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- Real-time WebSocket communication
+- Room-based user management
+- Peer-to-peer video/audio streaming
+- Message broadcasting
+- Audio/video state management
+- Cross-Origin Resource Sharing (CORS) support
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
+## Installation
+
+1. Clone the repository:
 ```bash
-$ npm install
+git clone <repository-url>
+cd nestjs-realtime-backend
 ```
 
-## Compile and run the project
-
+2. Install dependencies:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+## Running the Application
 
+### Development Mode
 ```bash
-# unit tests
-$ npm run test
+# Watch mode
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Debug mode
+npm run start:debug
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### Production Mode
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Build the application
+npm run build
+
+# Start production server
+npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## API Documentation
 
-## Resources
+### WebSocket Endpoints
 
-Check out a few resources that may come in handy when working with NestJS:
+The WebSocket server runs on `ws://localhost:3000`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### Events (Client → Server)
 
-## Support
+1. **Join Room**
+```typescript
+// Event: joinRoom
+{
+  userId: string;
+  room: string;
+  name: string;
+}
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+2. **Toggle Media**
+```typescript
+// Event: toggleMedia
+{
+  type: 'audio' | 'video';
+  value: boolean;
+}
+```
 
-## Stay in touch
+3. **Send Message**
+```typescript
+// Event: message
+{
+  room: string;
+  message: string;
+  sender: string;
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### Events (Server → Client)
+
+1. **User Joined**
+```typescript
+// Event: userJoined
+{
+  userId: string;
+  name: string;
+  isAudioMuted: boolean;
+  isVideoMuted: boolean;
+}
+```
+
+2. **User Left**
+```typescript
+// Event: userLeft
+{
+  userId: string;
+  name: string;
+}
+```
+
+3. **Media State Changed**
+```typescript
+// Event: mediaStateChanged
+{
+  userId: string;
+  type: 'audio' | 'video';
+  value: boolean;
+}
+```
+
+4. **Room Users**
+```typescript
+// Event: roomUsers
+Array<{
+  id: string;
+  name: string;
+  isAudioMuted: boolean;
+  isVideoMuted: boolean;
+}>
+```
+
+### PeerJS Server
+
+The PeerJS server runs on `http://localhost:9000/peer`
+
+- Endpoint: `/peer`
+- Default port: 9000
+- Discovery enabled: true
+
+## Project Structure
+
+```
+src/
+├── main.ts                  # Application entry point
+├── app.module.ts            # Root application module
+├── websocket/
+│   ├── websocket.module.ts  # WebSocket module
+│   ├── websocket.gateway.ts # WebSocket event handlers
+│   └── room.service.ts      # Room management service
+└── peer/
+    ├── peer.module.ts       # PeerJS module
+    ├── peer.service.ts      # PeerJS server service
+    └── peer.controller.ts   # PeerJS HTTP controller
+```
+
+## Testing
+
+```bash
+# Unit tests
+npm run test
+
+# Test coverage
+npm run test:coverage
+```
+
+## Code Style
+
+```bash
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+```
+
+## Environment Variables
+
+The application supports the following environment variables:
+
+- `CLIENT_URL`: Client application URL for CORS (default: 'http://localhost:3000')
+- `PORT`: Server port (default: 3000)
+- `PEER_PORT`: PeerJS server port (default: 9000)
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License.

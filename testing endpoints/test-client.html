@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Communication Testing</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <style>
+        .container { margin: 20px; }
+        .event-log { 
+            height: 300px; 
+            overflow-y: scroll; 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            margin-top: 10px;
+        }
+        .control-panel { margin-bottom: 20px; }
+        .status { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status">
+            <div>Socket Status: <span id="socketStatus">Disconnected</span></div>
+            <div>PeerJS Status: <span id="peerStatus">Disconnected</span></div>
+        </div>
+
+        <div class="control-panel">
+            <h3>WebSocket Testing</h3>
+            <input type="text" id="roomId" placeholder="Room ID" value="test-room">
+            <input type="text" id="userId" placeholder="User ID" value="user1">
+            <input type="text" id="userName" placeholder="User Name" value="Test User">
+            <button onclick="connectSocket()">Connect Socket</button>
+            <button onclick="joinRoom()">Join Room</button>
+            <button onclick="leaveRoom()">Leave Room</button>
+            <button onclick="disconnectSocket()">Disconnect Socket</button>
+            
+            <h3>Media Controls</h3>
+            <button onclick="toggleAudio()">Toggle Audio</button>
+            <button onclick="toggleVideo()">Toggle Video</button>
+            
+            <h3>Messaging</h3>
+            <input type="text" id="message" placeholder="Type message">
+            <button onclick="sendMessage()">Send Message</button>
+            
+            <h3>PeerJS Testing</h3>
+            <button onclick="initializePeer()">Initialize Peer</button>
+            <button onclick="disconnectPeer()">Disconnect Peer</button>
+        </div>
+
+        <div class="event-log" id="eventLog"></div>
+    </div>
+
+    <script>
+        let socket;
+        let peer;
+        let currentRoom;
+        
+        function logEvent(type, data) {
+            const eventLog = document.getElementById('eventLog');
+            const timestamp = new Date().toISOString();
+            const logEntry = `
+                <div style="border-bottom: 1px solid #eee; padding: 5px;">
+                    <strong>${timestamp}</strong><br>
+                    <strong>Type:</strong> ${type}<br>
+                    <strong>Data:</strong> ${JSON.stringify(data, null, 2)}
+                </div>
+            `;
+            eventLog.innerHTML = logEntry + eventLog.innerHTML;
+        }
+
+        function connectSocket() {
+            socket = io('http://localhost:3000', {
+                transports: ['websocket']
+            });
+
+            socket.on('connect', () => {
+                document.getElementById('socketStatus').textContent = 'Connected';
+                logEvent('Socket Connected', { id: socket.id });
+            });
+
+            socket.on('disconnect', () => {
+                document.getElementById('socketStatus').textContent = 'Disconnected';
+                logEvent('Socket Disconnected', {});
+            });
+
+            // Listen for events
+            socket.on('userJoined', (data) => logEvent('User Joined', data));
+            socket.on('userLeft', (data) => logEvent('User Left', data));
+            socket.on('mediaStateChanged', (data) => logEvent('Media State Changed', data));
+            socket.on('roomUsers', (data) => logEvent('Room Users', data));
+            socket.on('message', (data) => logEvent('Message Received', data));
+        }
+
+        function disconnectSocket() {
+            if (socket) {
+                socket.disconnect();
+                document.getElementById('socketStatus').textContent = 'Disconnected';
+            }
+        }
+
+        function joinRoom() {
+            const roomId = document.getElementById('roomId').value;
+            const userId = document.getElementById('userId').value;
+            const userName = document.getElementById('userName').value;
+            
+            currentRoom = roomId;
+            
+            socket.emit('joinRoom', {
+                userId,
+                room: roomId,
+                name: userName
+            });
+            
+            logEvent('Join Room Request', { userId, room: roomId, name: userName });
+        }
+
+        function leaveRoom() {
+            if (currentRoom) {
+                socket.emit('leaveRoom', { room: currentRoom });
+                logEvent('Leave Room Request', { room: currentRoom });
+                currentRoom = null;
+            }
+        }
+
+        function toggleAudio() {
+            socket.emit('toggleMedia', {
+                type: 'audio',
+                value: true
+            });
+            logEvent('Toggle Audio Request', { type: 'audio', value: true });
+        }
+
+        function toggleVideo() {
+            socket.emit('toggleMedia', {
+                type: 'video',
+                value: true
+            });
+            logEvent('Toggle Video Request', { type: 'video', value: true });
+        }
+
+        function sendMessage() {
+            const messageText = document.getElementById('message').value;
+            if (currentRoom && messageText) {
+                socket.emit('message', {
+                    room: currentRoom,
+                    message: messageText,
+                    sender: document.getElementById('userId').value
+                });
+                logEvent('Send Message Request', { 
+                    room: currentRoom, 
+                    message: messageText 
+                });
+                document.getElementById('message').value = '';
+            }
+        }
+
+        function initializePeer() {
+            peer = new Peer(document.getElementById('userId').value, {
+                host: 'localhost',
+                port: 9000,
+                path: '/peer'
+            });
+
+            peer.on('open', (id) => {
+                document.getElementById('peerStatus').textContent = 'Connected (ID: ' + id + ')';
+                logEvent('Peer Connected', { id });
+            });
+
+            peer.on('connection', (conn) => {
+                logEvent('Peer Connection Received', { peer: conn.peer });
+                
+                conn.on('data', (data) => {
+                    logEvent('Peer Data Received', data);
+                });
+            });
+
+            peer.on('error', (err) => {
+                logEvent('Peer Error', { message: err.message });
+                document.getElementById('peerStatus').textContent = 'Error';
+            });
+
+            peer.on('close', () => {
+                document.getElementById('peerStatus').textContent = 'Disconnected';
+                logEvent('Peer Disconnected', {});
+            });
+        }
+
+        function disconnectPeer() {
+            if (peer) {
+                peer.destroy();
+                document.getElementById('peerStatus').textContent = 'Disconnected';
+            }
+        }
+    </script>
+</body>
+</html>
