@@ -38,10 +38,10 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   handleJoinRoom(client: Socket, payload: { userId: string; room: string; name: string }) {
     const { userId, room, name } = payload;
     
-    // Join the Socket.IO room
+    
     client.join(room);
 
-    // Add user to room service
+    
     this.roomService.addUser({
       id: userId,
       socketId: client.id,
@@ -51,10 +51,10 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       isVideoMuted: false,
     });
 
-    // Get all users in the room
+    
     const users = this.roomService.getRoomUsers(room);
 
-    // Notify others in the room
+    
     client.to(room).emit('userJoined', {
       userId,
       name,
@@ -62,7 +62,7 @@ export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       isVideoMuted: false,
     });
 
-    // Send room users to the joining client
+   
     client.emit('roomUsers', users);
   }
 

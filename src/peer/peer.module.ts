@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PeerController } from './peer.controller';
+import { PeerController } from '../peer/peer.controller';
 import { PeerService } from './peer.service';
 
 @Module({
