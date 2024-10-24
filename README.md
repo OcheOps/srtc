@@ -21,7 +21,7 @@ A Nest.js-based backend application that provides real-time communication capabi
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd nestjs-realtime-backend
+cd srtc
 ```
 
 2. Install dependencies:
